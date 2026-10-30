@@ -238,6 +238,7 @@ const TRANSLATIONS = {
     ed_show_table: "Full plan table (toggle)",
     ed_show_base: "Baseline line on chart",
     ed_show_rates: "Import rate on chart",
+    ed_show_export_rate: "Export rate on chart",
     ed_hours: "Hours to show",
     ed_max_actions: "Max upcoming actions",
     ed_capacity: "Battery capacity override (kWh, optional)",
@@ -498,6 +499,7 @@ const TRANSLATIONS = {
     ed_show_table: "Pełna tabela planu (przełącznik)",
     ed_show_base: "Linia bazowa na wykresie",
     ed_show_rates: "Cena poboru na wykresie",
+    ed_show_export_rate: "Cena oddawania na wykresie",
     ed_hours: "Liczba godzin",
     ed_max_actions: "Maks. liczba działań",
     ed_capacity: "Pojemność baterii (kWh, opcjonalnie)",
@@ -753,6 +755,7 @@ const TRANSLATIONS = {
     ed_show_table: "Tabla completa del plan (desplegable)",
     ed_show_base: "Línea base en el gráfico",
     ed_show_rates: "Precio de importación en el gráfico",
+    ed_show_export_rate: "Precio de exportación en el gráfico",
     ed_hours: "Horas a mostrar",
     ed_max_actions: "Máx. acciones próximas",
     ed_capacity: "Capacidad de batería (kWh, opcional)",
@@ -1104,6 +1107,7 @@ const DEFAULT_CONFIG = {
   show_table: true,
   show_base: true,
   show_rates: true,
+  show_export_rate: false,
   show_data_quality: true,
   show_car: "auto",
   show_iboost: "auto",
@@ -2519,6 +2523,7 @@ ${esc(navigator.userAgent)}</pre></details>
     if (c.show_overview !== false) ["soc_now", "cost_today"].forEach((k) => need.add(k));
     if (c.show_timeline !== false || c.show_actions !== false || c.show_table !== false) need.add("plan");
     if (c.show_chart !== false) need.add("soc_best");
+    if (c.show_chart !== false && c.show_export_rate === true) need.add("rates_export");
     if (c.show_grid_chart !== false) ["export_energy", "import_energy"].forEach((k) => need.add(k));
     if (c.show_rates_chart !== false) need.add("rates");
     const missing = [...need].filter((k) => !this._st(k)).map((k) => this._eid(k));
@@ -4082,7 +4087,7 @@ ${esc(navigator.userAgent)}</pre></details>
     const own = CAR_OWN_KEYS.map((k) => this._carOwn(k, 0)).filter(Boolean).map((id) => this._hass.states[id]?.state).join(",");
     const solcast = SOLCAST_DAYS.map((id) => this._hass.states[id]?.last_updated || "-").join(",");
     const sig = keys.map((k) => this._st(k)?.last_updated || "-").join("|") +
-      `|${this._chartWidth}|${Math.floor(Date.now() / 60000)}|${this._tab}|${this._scale()}|dq${this._dqVer || 0}|${own}|${solcast}|${this._pvDay || 0}|pa${this._pvActVer || 0}`;
+      `|${this._chartWidth}|${Math.floor(Date.now() / 60000)}|${this._tab}|${this._scale()}|rates${this._config.show_rates}|exportRates${this._config.show_export_rate}|dq${this._dqVer || 0}|${own}|${solcast}|${this._pvDay || 0}|pa${this._pvActVer || 0}`;
     if (!force && sig === this._chartSig) return;
     this._chartSig = sig;
     this.shadowRoot.querySelectorAll(".chart[data-chart]").forEach((el) => {
@@ -4200,23 +4205,26 @@ ${esc(navigator.userAgent)}</pre></details>
     const c = this._config;
     const { socMax, now, horizon, cur } = this._ctx;
     const showRates = c.show_rates !== false;
+    const showExportRate = c.show_export_rate === true;
     const H = Math.round(190 + (this._scale() - 1) * 50);
-    const f = this._frame(W, H, { padL: 34, padR: showRates ? 40 : 10 });
+    const f = this._frame(W, H, { padL: 34, padR: showRates || showExportRate ? 40 : 10 });
     const { X, padL, padT, iw, ih } = f;
 
     const inWin = (s) => s.filter((p) => p[0] >= now - 10 * 60e3 && p[0] <= horizon);
     const best = inWin(seriesFrom(this._st("soc_best")?.attributes?.results));
     const base = c.show_base !== false ? inWin(seriesFrom(this._st("soc_base")?.attributes?.results)) : [];
     const rates = showRates ? this._windowSeries(seriesFrom(this._st("rates")?.attributes?.results)) : [];
+    const exportRates = showExportRate ? this._windowSeries(seriesFrom(this._st("rates_export")?.attributes?.results)) : [];
     if (!best.length) return { empty: t("no_forecast", { e: this._eid("soc_best") }) };
 
     const maxK = socMax || Math.max(...best.map((p) => p[1]), ...base.map((p) => p[1]), 1);
     const toPct = (k) => Math.max(0, Math.min(100, (k / maxK) * 100));
     const Y = (p) => padT + (1 - p / 100) * ih;
+    const allRates = [...rates, ...exportRates].map((p) => p[1]);
     let rMin = 0, rMax = 1;
-    if (rates.length) {
-      rMin = Math.min(0, ...rates.map((p) => p[1]));
-      rMax = Math.max(...rates.map((p) => p[1])) * 1.1 || 1;
+    if (allRates.length) {
+      rMin = Math.min(0, ...allRates);
+      rMax = Math.max(1, ...allRates) * 1.1;
     }
     const YR = (r) => padT + (1 - (r - rMin) / (rMax - rMin)) * ih;
 
@@ -4235,8 +4243,14 @@ ${esc(navigator.userAgent)}</pre></details>
     this._xAxis(f, parts);
     if (rates.length) {
       parts.push(`<path d="${this._stepPath(f, rates, YR)}" fill="none" stroke="var(--pb-rate)" stroke-width="1.4" opacity=".75" class="l-rate"/>`);
+    }
+    if (exportRates.length) {
+      parts.push(`<path d="${this._stepPath(f, exportRates, YR)}" fill="none" stroke="var(--pb-export)" stroke-width="1.6" opacity=".9" class="l-exp"/>`);
+    }
+    if (allRates.length) {
+      const axisColor = rates.length ? "var(--pb-rate)" : "var(--pb-export)";
       for (const r of [rMax / 1.1, (rMax / 1.1 + rMin) / 2, rMin]) {
-        parts.push(`<text class="axis" x="${padL + iw + 5}" y="${(YR(r) + 4).toFixed(1)}" style="fill:var(--pb-rate)">${esc(Math.round(r) + cur.minor)}</text>`);
+        parts.push(`<text class="axis" x="${padL + iw + 5}" y="${(YR(r) + 4).toFixed(1)}" style="fill:${axisColor}">${esc(Math.round(r) + cur.minor)}</text>`);
       }
     }
     if (base.length > 1) {
@@ -4260,6 +4274,7 @@ ${esc(navigator.userAgent)}</pre></details>
       `<span><i class="line" style="--c:var(--pb-accent)"></i>${esc(t("best"))}</span>`,
       base.length ? `<span><i class="dash" style="--c:var(--pb-muted)"></i>${esc(t("base"))}</span>` : "",
       rates.length ? `<span><i class="line" style="--c:var(--pb-rate)"></i>${esc(t("rate"))}</span>` : "",
+      exportRates.length ? `<span><i class="line" style="--c:var(--pb-export)"></i>${esc(t("export_rate"))}</span>` : "",
       `<span><i style="--c:color-mix(in srgb, var(--pb-charge) 45%, transparent)"></i>${esc(t("st_charge"))}</span>`,
       `<span><i style="--c:color-mix(in srgb, var(--pb-export) 45%, transparent)"></i>${esc(t("st_export"))}</span>`,
     ].join("");
@@ -4271,12 +4286,14 @@ ${esc(navigator.userAgent)}</pre></details>
         if (!b) return null;
         const bs = nearest(base, b[0]);
         const rate = stepAt(rates, b[0]);
+        const exportRate = stepAt(exportRates, b[0]);
         const lines = [
           this._tipHead(b[0]),
           `<div class="row"><span>${esc(t("best"))}</span><b>${Math.round(toPct(b[1]))}% · ${b[1].toFixed(1)} kWh</b></div>`,
         ];
         if (bs) lines.push(`<div class="row muted"><span>${esc(t("base"))}</span><span>${Math.round(toPct(bs[1]))}%</span></div>`);
         if (rate !== null) lines.push(`<div class="row"><span>${esc(t("import"))}</span><span>${esc(this._rate(rate, cur))}</span></div>`);
+        if (exportRate !== null) lines.push(`<div class="row"><span>${esc(t("export_rate"))}</span><span>${esc(this._rate(exportRate, cur))}</span></div>`);
         lines.push(this._tipState(this._rowAt(b[0])));
         return { x: X(b[0]), y: Y(toPct(b[1])), html: lines.join(""), color: "var(--pb-accent)" };
       },
@@ -4755,7 +4772,7 @@ class PredbatCardEditor extends HTMLElement {
       ]),
       section(t("sec_charts"), "mdi:chart-line", [
         grid(bool("show_chart"), bool("show_grid_chart"), bool("show_rates_chart"), bool("show_car_chart"), bool("show_base"), bool("show_rates"),
-          bool("show_load_forecast"), bool("show_grid_pv")),
+          bool("show_export_rate"), bool("show_load_forecast"), bool("show_grid_pv")),
         grid(select("chart_layout", ["tabs", "stacked"], "layout_"),
           { name: "hours", selector: { number: { min: 4, max: 48, step: 1, mode: "box", unit_of_measurement: "h" } } }),
       ]),
@@ -4812,7 +4829,7 @@ class PredbatCardEditor extends HTMLElement {
       style: "ed_style", theme_mode: "ed_theme_mode", title: "ed_title", prefix: "ed_prefix", language: "ed_language",
       show_header: "ed_show_header", show_overview: "ed_show_overview", show_chart: "ed_show_chart", show_grid_chart: "ed_show_grid_chart", show_rates_chart: "ed_show_rates_chart", chart_layout: "ed_chart_layout", show_data_quality: "ed_show_data_quality", show_car: "ed_show_car", show_iboost: "ed_show_iboost", show_car_chart: "ed_show_car_chart", car_names: "ed_car_names", car_battery_size: "ed_car_battery_size", car_soc_sensor: "e_car_soc_sensor", car_limit_sensor: "e_car_limit_sensor", car_plugged_sensor: "e_car_plugged_sensor", car_charging_sensor: "e_car_charging_sensor", car_start: "e_car_start", car_power: "e_car_power", car_cost_today: "e_car_cost_today", car_cost_yesterday: "e_car_cost_yesterday", car_manual_soc: "e_car_manual_soc", car_manual_soc_kwh: "e_car_manual_soc_kwh", car_rate: "e_car_rate", car_plan_smart: "e_car_plan_smart", car_max_price: "e_car_max_price", car_from_battery: "e_car_from_battery", octopus_intelligent: "e_octopus_intelligent", data_quality_days: "ed_dq_days", data_quality_minutes: "ed_dq_minutes", font_scale: "ed_font_scale",
       show_timeline: "ed_show_timeline", show_actions: "ed_show_actions", show_table: "ed_show_table",
-      show_base: "ed_show_base", show_rates: "ed_show_rates", hours: "ed_hours", max_actions: "ed_max_actions",
+      show_base: "ed_show_base", show_rates: "ed_show_rates", show_export_rate: "ed_show_export_rate", hours: "ed_hours", max_actions: "ed_max_actions",
       battery_capacity: "ed_capacity",
       status: "e_status", plan: "e_plan", mode: "e_mode", soc_now: "e_soc_now", soc_best: "e_soc_best",
       soc_base: "e_soc_base", inverter_config: "e_inverter_config", hours_left: "e_hours_left", rates: "e_rates",
