@@ -3,7 +3,7 @@
  * https://github.com/mimikm/Predbat-Card
  * MIT License
  */
-const CARD_VERSION = "0.4.7";
+const CARD_VERSION = "0.4.8";
 const CARD_TAG = "predbat-card";
 const EDITOR_TAG = "predbat-card-editor";
 

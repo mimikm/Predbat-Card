@@ -562,6 +562,9 @@ Yesterday's figure uses a different baseline (one cheap charge per night), so th
 | Yellow | Freeze export | `FrzExp` |
 | Light orange | Hold export | `HoldExp` |
 | Grey | Demand | `Demand` |
+| Green/orange stripes | Charge + export (mixed) | A slot Predbat marks as split between charge and export without saying when it changes |
+
+**Split slots.** Sometimes Predbat splits a slot, for example *demand until 17:15, then export*. When it gives the change time, the timeline, chart bands, upcoming actions and tooltips split the slot at that time. When a slot mixes charge and export without a change time, it's drawn with stripes rather than split at a made-up point.
 
 ## Troubleshooting
 
@@ -606,6 +609,7 @@ Want something added or moved up? [Open an issue](https://github.com/mimikm/Pred
 | 0.4.5 | Inverter breakdown no longer counts one inverter twice: skips unavailable leftover sensors and GivEnergy Gateway totals, never shows more than Predbat's own inverter count; the editor shows what was found and what was left out. New battery level (kWh) and battery size slots per inverter, so each shows % and kWh |
 | 0.4.6 | Plan table escapes the currency symbol like the rest of the card (HACS review); README install leads with HACS search |
 | 0.4.7 | Actual solar today on the Solar chart against the forecast ([#3](https://github.com/mimikm/Predbat-Card/issues/3)); Next charge / Next export only show real charge and export slots, with an option to include hold and freeze ([#4](https://github.com/mimikm/Predbat-Card/issues/4)) |
+| 0.4.8 | Plan slots keep their full length, and split slots are shown at Predbat's change time, with mixed charge/export slots striped. Contributed by [@graememorgan](https://github.com/graememorgan) ([#5](https://github.com/mimikm/Predbat-Card/pull/5)) |
 
 ### 🔜 0.4.x – More of Predbat's data
 
@@ -651,7 +655,7 @@ Not planned yet. Comment on an issue if you'd use one of these.
 
 ## Contributing
 
-Issues and pull requests are welcome, including new translations. Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
+Issues and pull requests are welcome, including new translations. Thanks to everyone who has contributed so far, including [@graememorgan](https://github.com/graememorgan) (plan slot lengths and split slots). Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
 
 ## Credits
 
