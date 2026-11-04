@@ -122,6 +122,7 @@ The **Entity check** at the bottom shows how many entities were found. It opens 
 | `show_car` | `auto` | Car tiles, car slots in the timeline and upcoming actions. `auto` shows them when Predbat has a car set up; `on` or `off` to force. |
 | `show_iboost` | `auto` | Hot water (iBoost) tile, timeline lane and heating windows. `auto` shows them when Predbat's iBoost is enabled. |
 | `show_car_chart` | `true` | Car chart tab (only when cars are shown). |
+| `merge_car_actions` | `true` | Join back-to-back car charging slots into one action. Predbat lists the car plan one 30-minute slot at a time; turn this off to see each slot separately (useful on Agile, where each slot's price differs). |
 | `car_names` | – | Names for your cars, comma separated, e.g. `Tesla, Leaf`. |
 | `car_battery_size` | – | Car battery size in kWh, comma separated per car. Only needed to turn a kWh charge level (or Predbat's manual SoC) into %. |
 | `show_load_forecast` | `true` | House load forecast line on the grid chart. |
@@ -142,7 +143,8 @@ The **Entity check** at the bottom shows how many entities were found. It opens 
 | `show_actions` | `true` | Upcoming actions list. |
 | `show_table` | `true` | “Show full plan” button and table. |
 | `show_base` | `true` | Baseline SoC line on the chart. |
-| `show_rates` | `true` | Import rate line on the chart. |
+| `show_rates` | `true` | Import rate line on the battery chart. |
+| `show_export_rate` | `false` | Export rate line on the battery chart, alongside or instead of the import rate. |
 | `hours` | `24` | How many hours ahead the chart, timeline and actions cover (4–48). |
 | `max_actions` | `4` | Maximum number of upcoming actions. |
 | `battery_capacity` | – | Battery size in kWh. Only needed if the card cannot read it from Predbat. |
@@ -255,6 +257,7 @@ show_rates_chart: true   # energy rates
 chart_layout: tabs       # tabs | stacked
 show_base: true          # baseline line on the battery chart
 show_rates: true         # import rate line on the battery chart
+show_export_rate: false  # export rate line on the battery chart
 show_load_forecast: true # house load line on the grid chart
 show_grid_pv: true       # solar line on the grid chart
 show_solar: auto         # auto | on | off – Solar tab and tile
@@ -272,6 +275,7 @@ inverter_power_invert: false
 show_car: auto           # auto | on | off
 show_iboost: auto        # auto | on | off
 show_car_chart: true
+merge_car_actions: true  # join back-to-back car charging slots
 # car_names: Tesla, Leaf
 # car_battery_size: 75
 
@@ -477,7 +481,7 @@ If Predbat plans your car charging or a solar diverter (iBoost), the card shows 
 - **Target**: your car's charge limit (`car_limit_sensor`) if you've added it, otherwise where Predbat's plan ends.
 - **Status**: charging now (from your charger sensor, Predbat's car charging power, or a Predbat slot being active), plugged in or not, the next slot with energy and cost, or the next start time.
 - **Warnings**: if Predbat is planning from a different charge level than the car reports (10% or more apart), or Predbat thinks the battery is empty, the tile and Car tab say so. That usually means `car_charging_soc` in your Predbat `apps.yaml` isn't set or isn't working, so Predbat may plan more charging than you need.
-- Every planned slot in **Upcoming actions** with its energy, average rate and cost, from the `planned` list on `binary_sensor.predbat_car_charging_slot`. If that list is empty, the card falls back to the car column in Predbat's plan.
+- Planned charging in **Upcoming actions** with its energy, average rate and cost, from the `planned` list on `binary_sensor.predbat_car_charging_slot`. Predbat lists it one 30-minute slot at a time, so back-to-back slots are joined into one action (total kWh and cost, average price weighted by kWh); set `merge_car_actions: false` to see every slot. If the list is empty, the card falls back to the car column in Predbat's plan.
 - A lane under the plan timeline for each car, and a Car column in the full plan table.
 - **Car tab**: Predbat's charge level forecast, the car's own reading, your target, the charging slots, ready-by time, and Predbat's car settings (smart plan or Octopus Intelligent, max price, whether it can use the home battery, cost today and yesterday).
 
@@ -610,6 +614,7 @@ Want something added or moved up? [Open an issue](https://github.com/mimikm/Pred
 | 0.4.6 | Plan table escapes the currency symbol like the rest of the card (HACS review); README install leads with HACS search |
 | 0.4.7 | Actual solar today on the Solar chart against the forecast ([#3](https://github.com/mimikm/Predbat-Card/issues/3)); Next charge / Next export only show real charge and export slots, with an option to include hold and freeze ([#4](https://github.com/mimikm/Predbat-Card/issues/4)) |
 | 0.4.8 | Plan slots keep their full length, and split slots are shown at Predbat's change time, with mixed charge/export slots striped. Contributed by [@graememorgan](https://github.com/graememorgan) ([#5](https://github.com/mimikm/Predbat-Card/pull/5)) |
+| 0.4.9 | Back-to-back car charging slots joined into one action, with total kWh, cost and average price ([#7](https://github.com/mimikm/Predbat-Card/issues/7)); optional export rate on the battery chart, contributed by [@graememorgan](https://github.com/graememorgan) ([#6](https://github.com/mimikm/Predbat-Card/pull/6)) |
 
 ### 🔜 0.4.x – More of Predbat's data
 
@@ -655,7 +660,7 @@ Not planned yet. Comment on an issue if you'd use one of these.
 
 ## Contributing
 
-Issues and pull requests are welcome, including new translations. Thanks to everyone who has contributed so far, including [@graememorgan](https://github.com/graememorgan) (plan slot lengths and split slots). Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
+Issues and pull requests are welcome, including new translations. Thanks to everyone who has contributed so far, including [@graememorgan](https://github.com/graememorgan) (plan slot lengths, split slots and the export rate on the battery chart). Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
 
 ## Credits
 

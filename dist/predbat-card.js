@@ -3,7 +3,7 @@
  * https://github.com/mimikm/Predbat-Card
  * MIT License
  */
-const CARD_VERSION = "0.4.8";
+const CARD_VERSION = "0.4.9";
 const CARD_TAG = "predbat-card";
 const EDITOR_TAG = "predbat-card-editor";
 
@@ -915,6 +915,10 @@ Object.assign(TRANSLATIONS.es, {
   ed_pv_sensors: "Sensores solares (opcional)", e_pv_actual: "Producción solar real (potencia o energía de hoy)",
 });
 
+Object.assign(TRANSLATIONS.en, { ed_merge_car_actions: "Join back-to-back car charging slots" });
+Object.assign(TRANSLATIONS.pl, { ed_merge_car_actions: "Łącz kolejne sloty ładowania samochodu" });
+Object.assign(TRANSLATIONS.es, { ed_merge_car_actions: "Unir franjas de carga del coche seguidas" });
+
 function pickLang(hass, config) {
   const want = (config && config.language && config.language !== "auto")
     ? config.language
@@ -1112,6 +1116,7 @@ const DEFAULT_CONFIG = {
   show_car: "auto",
   show_iboost: "auto",
   show_car_chart: true,
+  merge_car_actions: true,
   car_names: "",
   car_battery_size: "",
   show_solar: "auto",
@@ -2847,6 +2852,8 @@ ${esc(navigator.userAgent)}</pre></details>
         kwh: num(w.kwh) || 0, avg: num(w.average), cost: num(w.cost),
         cancelled: num(w.kwh_cancelled) || 0,
       })).filter((w) => w.s !== null && w.e !== null && w.e > now).sort((a, b) => a.s - b.s);
+      // Predbat lists the car plan one 30-minute slot at a time: join back-to-back slots into one charge
+      if (this._config.merge_car_actions !== false) windows = this._mergeCarWindows(windows);
       // fallback 1: Predbat's plan table car column (one car only, it is a total)
       if (!windows.length && n === 1 && this._ctx?.rows?.some((r) => (r.carKwh || 0) > 0.001)) {
         let w = null;
@@ -2929,6 +2936,32 @@ ${esc(navigator.userAgent)}</pre></details>
     }
     this._carsCache = { at: this._ctx, list };
     return list;
+  }
+
+  /** Join car windows where one ends as the next starts: kWh, cost and cancelled kWh add up,
+   *  and the price becomes the kWh-weighted average. */
+  _mergeCarWindows(list) {
+    const out = [];
+    for (const w of list) {
+      const g = out[out.length - 1];
+      if (g && Math.abs(w.s - g.e) < 60e3) {
+        const kw = g.kwh + w.kwh;
+        if (g.avg !== null || w.avg !== null) {
+          const wa = g.kwh > 0 || w.kwh > 0
+            ? ((g.avg ?? w.avg) * g.kwh + (w.avg ?? g.avg) * w.kwh) / kw
+            : ((g.avg ?? w.avg) + (w.avg ?? g.avg)) / 2;
+          g.avg = wa;
+        }
+        g.cost = g.cost === null && w.cost === null ? null : (g.cost || 0) + (w.cost || 0);
+        g.kwh = kw;
+        g.cancelled = (g.cancelled || 0) + (w.cancelled || 0);
+        g.e = Math.max(g.e, w.e);
+        g.slots = (g.slots || 1) + 1;
+        continue;
+      }
+      out.push({ ...w });
+    }
+    return out;
   }
 
   /** Car settings that apply to all cars, for the Car tab. */
@@ -4779,6 +4812,7 @@ class PredbatCardEditor extends HTMLElement {
       section(t("sec_car"), "mdi:car-electric", [
         grid(select("show_car", ["auto", "on", "off"], "show_"), select("show_iboost", ["auto", "on", "off"], "show_")),
         grid({ name: "car_names", selector: { text: {} } }, { name: "car_battery_size", selector: { text: {} } }),
+        bool("merge_car_actions"),
         {
           type: "expandable", name: "entities", title: t("ed_car_sensors"), icon: "mdi:car-cog",
           schema: CAR_OWN_KEYS.map((k) => ({ name: k, selector: { entity: { multiple: true } } })),
