@@ -784,7 +784,6 @@ const TRANSLATIONS = {
     e_export_end: "Fin de la próxima exportación",
     e_export_limit: "Objetivo de exportación (%)",
   },
-};
   de: {
     dq_unknown_n: "{n} Leistung unbekannt",
     dq_l_unknown: "Leistung unbekannt",
@@ -1013,6 +1012,7 @@ const TRANSLATIONS = {
     ed_show_table: "Vollständige Plan-Tabelle (Umschalter)",
     ed_show_base: "Basislinie im Diagramm",
     ed_show_rates: "Bezugstarif im Diagramm",
+    ed_show_export_rate: "Einspeisetarif im Diagramm",
     ed_hours: "Stunden zum Anzeigen",
     ed_max_actions: "Max. anstehende Aktionen",
     ed_capacity: "Batteriekapazität Überschreibung (kWh, optional)",
@@ -5060,7 +5060,7 @@ class PredbatCardEditor extends HTMLElement {
         grid(select("style", STYLE_NAMES, "style_"), select("theme_mode", ["auto", "light", "dark"], "mode_")),
         grid({ name: "title", selector: { text: {} } }, select("language", [
           { value: "auto", label: t("ed_auto") }, { value: "en", label: "English" },
-          { value: "pl", label: "Polski" }, { value: "es", label: "Español" },
+          { value: "pl", label: "Polski" }, { value: "es", label: "Español" },{ value: "de", label: "Deutsch" },
         ])),
         { name: "font_scale", selector: { number: { min: 0.8, max: 1.6, step: 0.05, mode: "slider" } } },
       ], true),
