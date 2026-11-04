@@ -43,7 +43,7 @@ A Home Assistant Lovelace card that shows what [Predbat](https://github.com/spri
 - **Visual editor** with every Predbat entity prefilled and a live entity check that shows which ones were found.
 - No dependencies – no ApexCharts or other cards needed.
 - Follows your Home Assistant theme (light and dark) and time format.
-- Translations: English, Polski, Español.
+- Translations: English, Polski, Español, Deutsch.
 
 ## Requirements
 
@@ -113,7 +113,7 @@ The **Entity check** at the bottom shows how many entities were found. It opens 
 | `theme_mode` | `auto` | `auto` follows your Home Assistant theme, `light` or `dark` forces that look on this card whatever the theme. |
 | `title` | `Predbat` | Card title. |
 | `prefix` | `predbat` | Predbat entity prefix. Change it if you run more than one Predbat instance or changed `prefix` in `apps.yaml`. All default entities follow it. |
-| `language` | `auto` | `auto` (follows Home Assistant), `en`, `pl` or `es`. |
+| `language` | `auto` | `auto` (follows Home Assistant), `en`, `pl`, `es` or `de`. |
 | `show_header` | `true` | Status header. |
 | `show_overview` | `true` | Overview tiles. |
 | `show_chart` | `true` | Battery forecast chart. |
@@ -241,7 +241,7 @@ style: modern            # modern | glass | neon | minimal | native | terminal
 theme_mode: auto         # auto | light | dark
 font_scale: 1            # text size, 0.8 – 1.6
 title: Predbat
-language: auto           # auto | en | pl | es
+language: auto           # auto | en | pl | es | de
 
 # Sections
 show_header: true
@@ -614,7 +614,7 @@ Want something added or moved up? [Open an issue](https://github.com/mimikm/Pred
 | 0.4.6 | Plan table escapes the currency symbol like the rest of the card (HACS review); README install leads with HACS search |
 | 0.4.7 | Actual solar today on the Solar chart against the forecast ([#3](https://github.com/mimikm/Predbat-Card/issues/3)); Next charge / Next export only show real charge and export slots, with an option to include hold and freeze ([#4](https://github.com/mimikm/Predbat-Card/issues/4)) |
 | 0.4.8 | Plan slots keep their full length, and split slots are shown at Predbat's change time, with mixed charge/export slots striped. Contributed by [@graememorgan](https://github.com/graememorgan) ([#5](https://github.com/mimikm/Predbat-Card/pull/5)) |
-| 0.4.9 | Back-to-back car charging slots joined into one action, with total kWh, cost and average price ([#7](https://github.com/mimikm/Predbat-Card/issues/7)); optional export rate on the battery chart, contributed by [@graememorgan](https://github.com/graememorgan) ([#6](https://github.com/mimikm/Predbat-Card/pull/6)) |
+| 0.4.9 | Back-to-back car charging slots joined into one action, with total kWh, cost and average price ([#7](https://github.com/mimikm/Predbat-Card/issues/7)); optional export rate on the battery chart, contributed by [@graememorgan](https://github.com/graememorgan) ([#6](https://github.com/mimikm/Predbat-Card/pull/6)); German translation by [@tschnilo](https://github.com/tschnilo) ([#8](https://github.com/mimikm/Predbat-Card/pull/8)) |
 
 ### 🔜 0.4.x – More of Predbat's data
 
@@ -639,7 +639,8 @@ Want something added or moved up? [Open an issue](https://github.com/mimikm/Pred
 - [x] Reorder and hide chart tabs, and a separate phone layout (done early, in 0.4.4)
 - [ ] Custom accent colour
 - [ ] Compact mode: a small card with battery, now, next action and saving
-- [ ] More translations (German, French, Dutch – volunteers welcome)
+- [x] German translation (thanks [@tschnilo](https://github.com/tschnilo))
+- [ ] More translations (French, Dutch, … – volunteers welcome)
 
 ### 🎯 1.0 – Stable release
 
@@ -660,7 +661,7 @@ Not planned yet. Comment on an issue if you'd use one of these.
 
 ## Contributing
 
-Issues and pull requests are welcome, including new translations. Thanks to everyone who has contributed so far, including [@graememorgan](https://github.com/graememorgan) (plan slot lengths, split slots and the export rate on the battery chart). Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
+Issues and pull requests are welcome, including new translations. Thanks to everyone who has contributed so far, including [@graememorgan](https://github.com/graememorgan) (plan slot lengths, split slots and the export rate on the battery chart) and [@tschnilo](https://github.com/tschnilo) (German translation). Translations live in the `TRANSLATIONS` object at the top of `dist/predbat-card.js`; copy the `en` block, translate it and open a PR.
 
 ## Credits
 

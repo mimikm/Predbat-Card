@@ -1004,7 +1004,7 @@ const TRANSLATIONS = {
     ed_prefix: "Predbat-Präfix",
     ed_language: "Sprache",
     ed_auto: "Automatisch (Home Assistant)",
-    ed_show_header: "Header",
+    ed_show_header: "Kopfzeile",
     ed_show_overview: "Übersichts-Kacheln",
     ed_show_chart: "Batterievorhersage-Diagramm",
     ed_show_timeline: "Plan-Zeitachse",
@@ -1177,14 +1177,14 @@ Object.assign(TRANSLATIONS.es, {
   lay_s_timeline: "Línea del plan", lay_s_actions: "Próximas acciones", lay_s_table: "Tabla completa del plan",
 });
 Object.assign(TRANSLATIONS.de, {
-  sec_layout: "Layout", lay_desktop: "Desktop", lay_phone: "Phone",
-  lay_hint: "Drag a block to move it. It snaps into place. Drag it onto Hidden to hide it, and back to show it again.",
-  lay_hidden: "Hidden", lay_hidden_empty: "Drag here to hide", lay_off: "off", lay_off_title: "Turned off in the settings above",
-  lay_reset: "Reset layout", lay_phone_none: "No phone layout yet. Phones use the desktop layout.",
-  lay_phone_create: "Create phone layout", lay_phone_copy: "Copy desktop layout", lay_phone_remove: "Remove phone layout",
-  lay_phone_bp: "Use on screens narrower than", lay_phone_hint: "Arrange the card for phones. Your desktop layout isn't affected.",
-  lay_s_header: "Header", lay_s_alerts: "Warnings", lay_s_overview: "Overview tiles", lay_s_inverters: "Inverters", lay_s_charts: "Charts",
-  lay_s_timeline: "Plan timeline", lay_s_actions: "Upcoming actions", lay_s_table: "Full plan table",
+  sec_layout: "Layout", lay_desktop: "Desktop", lay_phone: "Handy",
+  lay_hint: "Ziehe einen Block, um ihn zu verschieben. Er rastet an seinem Platz ein. Zieh ihn auf Ausgeblendet, um ihn auszublenden, und wieder zurück, um ihn anzuzeigen.",
+  lay_hidden: "Ausgeblendet", lay_hidden_empty: "Hierher ziehen zum Ausblenden", lay_off: "aus", lay_off_title: "In den Einstellungen oben ausgeschaltet",
+  lay_reset: "Layout zurücksetzen", lay_phone_none: "Noch kein Handy-Layout. Handys verwenden das Desktop-Layout.",
+  lay_phone_create: "Handy-Layout erstellen", lay_phone_copy: "Desktop-Layout kopieren", lay_phone_remove: "Handy-Layout entfernen",
+  lay_phone_bp: "Verwenden auf Bildschirmen schmaler als", lay_phone_hint: "Ordne die Karte für Handys an. Dein Desktop-Layout bleibt unverändert.",
+  lay_s_header: "Kopfzeile", lay_s_alerts: "Warnungen", lay_s_overview: "Übersichtskacheln", lay_s_inverters: "Wechselrichter", lay_s_charts: "Diagramme",
+  lay_s_timeline: "Plan-Zeitleiste", lay_s_actions: "Anstehende Aktionen", lay_s_table: "Vollständige Plantabelle",
 });
 
 Object.assign(TRANSLATIONS.en, { ed_inv_skip_unavailable: "ignored: unavailable", ed_inv_skip_gateway: "ignored: GivEnergy Gateway (totals)", ed_inv_skip_extra: "ignored: Predbat runs {n}" });
@@ -1216,6 +1216,7 @@ Object.assign(TRANSLATIONS.de, {
 Object.assign(TRANSLATIONS.en, { ed_merge_car_actions: "Join back-to-back car charging slots" });
 Object.assign(TRANSLATIONS.pl, { ed_merge_car_actions: "Łącz kolejne sloty ładowania samochodu" });
 Object.assign(TRANSLATIONS.es, { ed_merge_car_actions: "Unir franjas de carga del coche seguidas" });
+Object.assign(TRANSLATIONS.de, { ed_merge_car_actions: "Aufeinanderfolgende Auto-Ladeslots zusammenfassen", dq_good: "{v}% gut über {d} Tage" });
 
 function pickLang(hass, config) {
   const want = (config && config.language && config.language !== "auto")
@@ -2397,8 +2398,8 @@ ha-card.m-light { --pb-pv: #e0a500; }
 @container (min-width: 540px) { .inv-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @container (min-width: 1080px) { .inv-list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .inv { padding: 10px 12px; border-radius: calc(var(--pb-radius) - 4px); background: var(--pb-tile); min-width: 0; }
-.inv-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.inv-name { font-weight: 600; font-size: calc(.86 * var(--u)); display: inline-flex; gap: 6px; align-items: center; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inv-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 2px 8px; }
+.inv-name { font-weight: 600; font-size: calc(.86 * var(--u)); display: inline-flex; gap: 6px; align-items: center; min-width: 0; max-width: 100%; overflow: hidden; white-space: nowrap; }
 .inv-name ha-icon { --mdc-icon-size: calc(1.05 * var(--u)); color: var(--pb-muted); }
 .inv-pct { font-weight: 700; font-size: calc(1.05 * var(--u)); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .inv-pct small { font-weight: 500; font-size: .72em; color: var(--pb-muted); margin-left: 5px; }
