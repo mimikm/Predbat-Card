@@ -6,6 +6,7 @@
 [![Downloads of latest release](https://img.shields.io/github/downloads/mimikm/Predbat-Card/latest/total?label=latest%20release)](https://github.com/mimikm/Predbat-Card/releases/latest)
 [![Validate](https://github.com/mimikm/Predbat-Card/actions/workflows/validate.yaml/badge.svg)](https://github.com/mimikm/Predbat-Card/actions/workflows/validate.yaml)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-FFDD00?logo=buymeacoffee&logoColor=000)](https://buymeacoffee.com/mimikm)
+[![Octopus Energy referral](https://img.shields.io/badge/Octopus%20Energy-referral-E7007A)](https://octopusreferralcode.com)
 
 A Home Assistant Lovelace card that shows what [Predbat](https://github.com/springfall2008/batpred) is doing and what it plans to do next, at a glance.
 
@@ -685,6 +686,8 @@ Predbat does all the clever work: it predicts your house load, solar and tariff 
 Predbat Card is an independent community project. It is not part of Predbat and is not endorsed by its author. Please report card problems here, not on the Predbat repository.
 
 Card made by [@mimikm](https://github.com/mimikm). If you find it useful you can [buy me a coffee](https://buymeacoffee.com/mimikm) ☕
+
+Switching to Octopus Energy? Using my referral link at [octopusreferralcode.com](https://octopusreferralcode.com) gets us both account credit, and it costs you nothing 🐙
 
 ## License
 
